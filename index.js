@@ -1,5 +1,5 @@
 // ----
-// Authenticate with google (via passport) 
+// Authenticate with google (via passport)
 // and grant access to users who match an email whitelist
 // ----
 
@@ -50,7 +50,6 @@ module.exports = function (env, app) {
   // tell passport to use google auth
   passport.use(new GoogleStrategy(opts, loginCb))
 
-
   // tell express to use passport middleware
   app.use(passport.initialize())
   app.use(passport.session())
@@ -73,8 +72,7 @@ module.exports = function (env, app) {
 // Middleware to ensure the user is authenticated before proceeding
 module.exports.requireAuth = function requireAuth (req, res, next) {
   // If user is authenticated in the session, carry on
-  if (typeof req.isAuthenticated === 'function'
-      && req.isAuthenticated()) { return next() }
+  if (typeof req.isAuthenticated === 'function' && req.isAuthenticated()) { return next() }
 
   // Otherwise send 401 response
   res.sendStatus(401)

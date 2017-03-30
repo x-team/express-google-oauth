@@ -4,6 +4,7 @@
   "description": "Authenticate with google (via passport) and grant access to users who match an email whitelist",
   "main": "index.js",
   "scripts": {
+    "lint": "standard",
     "test": "tape tests | tap-spec"
   },
   "keywords": [
@@ -20,6 +21,7 @@
     "passport-google-oauth": "^1.0.0"
   },
   "devDependencies": {
+    "standard": "^9.0.2",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.3"
   }
