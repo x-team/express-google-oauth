@@ -1,7 +1,19 @@
+// @flow
+
 // ----
 // Authenticate with google (via passport)
 // and grant access to users who match an email whitelist
 // ----
+
+type Env = {
+  // google auth config
+  GOOGLE_CLIENT_ID: string,
+  GOOGLE_CLIENT_SECRET: string,
+  GOOGLE_CALLBACK_URL: string,
+  GOOGLE_AUTH_WHITELIST: string
+}
+
+import type { $Application } from 'express'
 
 const normalizeWhitelist = require('./lib/normalize-whitelist')
 const isEmailInWhitelist = require('./lib/is-email-in-whitelist')
@@ -17,7 +29,7 @@ passport.deserializeUser((user, done) => {
   done(null, user)
 })
 
-module.exports = function (env, app) {
+module.exports = function (env: Env, app: $Application) {
   const whitelist = normalizeWhitelist(env.GOOGLE_AUTH_WHITELIST)
 
   const opts = {

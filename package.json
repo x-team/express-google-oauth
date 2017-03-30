@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard",
+    "flow": "flow check",
     "test": "tape tests | tap-spec"
   },
   "keywords": [
@@ -21,8 +22,13 @@
     "passport-google-oauth": "^1.0.0"
   },
   "devDependencies": {
+    "eslint-plugin-flowtype": "^2.30.4",
+    "flow-bin": "^0.42.0",
     "standard": "^9.0.2",
     "tap-spec": "^4.1.1",
     "tape": "^4.6.3"
+  },
+  "standard": {
+    "plugins": [ "flowtype" ]
   }
 }
