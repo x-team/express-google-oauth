@@ -23,7 +23,11 @@ module.exports = function (env, app) {
   const opts = {
     clientID: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
-    callbackURL: env.GOOGLE_CALLBACK_URL
+    callbackURL: env.GOOGLE_CALLBACK_URL,
+    authRedirect: {
+      success: env.GOOGLE_SUCCESS_REDIRECT_URL || '/auth/success',
+      failure: env.GOOGLE_FAILURE_REDIRECT_URL || '/auth/failure'
+    }
   }
 
   const loginCb = (accessToken, refreshToken, profile, done) => {
@@ -63,8 +67,8 @@ module.exports = function (env, app) {
   // - callback that google auth brings the user back to
   // (need to make sure google is configured with the same route)
   app.get('/auth/google/callback', passport.authenticate('google', {
-    failureRedirect: '/admin',
-    successRedirect: '/admin',
+    failureRedirect: opts.authRedirect.success,
+    successRedirect: opts.authRedirect.failure,
     failureFlash: true
   }))
 }
