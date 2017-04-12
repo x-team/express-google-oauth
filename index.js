@@ -17,18 +17,34 @@ passport.deserializeUser((user, done) => {
   done(null, user)
 })
 
-module.exports = function (env, app) {
-  const whitelist = normalizeWhitelist(env.GOOGLE_AUTH_WHITELIST)
+function getOptionsFromEnv (env, opts={}) {
+  // the email whitelist to determine who can login
+  opts.whitelist = normalizeWhitelist(opts.whitelist || env.GOOGLE_AUTH_WHITELIST)
 
-  const opts = {
+  // options for the google oauth strategy
+  opts.google = Object.assign({
     clientID: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
-    callbackURL: env.GOOGLE_CALLBACK_URL,
-    authRedirect: {
-      success: env.GOOGLE_SUCCESS_REDIRECT_URL || '/auth/success',
-      failure: env.GOOGLE_FAILURE_REDIRECT_URL || '/auth/failure'
-    }
+    callbackURL: env.GOOGLE_CALLBACK_URL
+  }, opts.google || {})
+
+  // options for express routes
+  opts.routes = Object.assign({
+    init: '/auth/google',
+    callback: '/auth/google/callback',
+    success: '/admin',
+    failure: '/admin'
+  }, opts.routes || {})
+
+  return opts
+}
+
+module.exports = function (app, opts) {
+  if (typeof app.use !== 'function') {
+    throw new Error('Expected first argument to be an express app instance')
   }
+
+  opts = getOptionsFromEnv(process.env, opts)
 
   const loginCb = (accessToken, refreshToken, profile, done) => {
     if (!accessToken || !profile) {
@@ -44,7 +60,7 @@ module.exports = function (env, app) {
       email: profile.emails[0].value
     }
 
-    if (user.id !== null && isEmailInWhitelist(whitelist, user.email)) {
+    if (user.id !== null && isEmailInWhitelist(opts.whitelist, user.email)) {
       return done(null, user)
     } else {
       return done(null, false)
@@ -52,7 +68,7 @@ module.exports = function (env, app) {
   }
 
   // tell passport to use google auth
-  passport.use(new GoogleStrategy(opts, loginCb))
+  passport.use(new GoogleStrategy(opts.google, loginCb))
 
   // tell express to use passport middleware
   app.use(passport.initialize())
@@ -61,14 +77,16 @@ module.exports = function (env, app) {
   // ----
   // routes for google auth
 
+  const routes = opts.routes
+
   // - initiate login
-  app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+  app.get(routes.init, passport.authenticate('google', { scope: ['profile', 'email'] }))
 
   // - callback that google auth brings the user back to
   // (need to make sure google is configured with the same route)
-  app.get('/auth/google/callback', passport.authenticate('google', {
-    failureRedirect: opts.authRedirect.success,
-    successRedirect: opts.authRedirect.failure,
+  app.get(routes.callback, passport.authenticate('google', {
+    failureRedirect: routes.failure,
+    successRedirect: routes.success,
     failureFlash: true
   }))
 }
