@@ -1,6 +1,6 @@
 {
   "name": "express-google-oauth",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Authenticate with google (via passport) and grant access to users who match an email whitelist",
   "main": "index.js",
   "scripts": {
